@@ -32,7 +32,7 @@ const ThankYou = () => {
         <div className="text-2xl font-extrabold text-blue-700 tracking-tight mb-3">Thank you for your feedback!</div>
         <DiscountReveal discount={discount} code={code} />
         <button
-          onClick={() => navigate("/")}
+          onClick={() => navigate("/feedback")}
           className="mt-6 bg-gradient-to-r from-purple-400 to-blue-500 text-white font-bold px-6 py-2 rounded-lg shadow hover:scale-105 transition"
         >
           Submit More Feedback

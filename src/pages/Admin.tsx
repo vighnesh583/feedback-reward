@@ -1,6 +1,5 @@
-
-import React, { useState, useMemo } from "react";
-import { getAllFeedback, FeedbackEntry } from "../lib/feedbackUtils";
+import React, { useState, useEffect } from "react";
+import { FeedbackEntry } from "../lib/feedbackUtils";
 import FeedbackTable from "../components/FeedbackTable";
 import SummaryStats from "../components/SummaryStats";
 import { Button } from "@/components/ui/button";
@@ -8,14 +7,38 @@ import { ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const Admin = () => {
+  const [feedback, setFeedback] = useState<FeedbackEntry[]>([]);
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState<"date" | "rating">("date");
   const [asc, setAsc] = useState(false);
   const navigate = useNavigate();
 
-  // For live view, reload all feedback on every render.
-  const feedback: FeedbackEntry[] = useMemo(() => getAllFeedback(), []);
-  
+  useEffect(() => {
+    async function fetchFeedback() {
+      try {
+        const res = await fetch('http://localhost:5000/api/feedback');
+        const data = await res.json();
+
+        // map _id → id for FeedbackEntry type
+        const mapped = data.map((item: any) => ({
+          id: item._id,
+          name: item.name,
+          email: item.email,
+          rating: item.rating,
+          message: item.message,
+          discount: item.discount,
+          discountCode: item.discountCode,
+          date: item.date,
+        }));
+
+        setFeedback(mapped);
+      } catch (err) {
+        console.error("Failed to fetch feedback:", err);
+      }
+    }
+    fetchFeedback();
+  }, []);
+
   const filtered = feedback
     .filter((fb) =>
       [fb.name, fb.email, fb.message]
@@ -39,7 +62,7 @@ const Admin = () => {
       <div className="max-w-5xl mx-auto">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-extrabold text-blue-800 tracking-tight">Feedback Dashboard</h1>
-          <Button
+          {/* <Button
             variant="secondary"
             onClick={() => navigate("/")}
             className="flex items-center gap-2"
@@ -47,7 +70,7 @@ const Admin = () => {
           >
             <ArrowLeft size={18} />
             Client View
-          </Button>
+          </Button> */}
         </div>
         <div className="mb-8 flex flex-col md:flex-row gap-4 items-center md:justify-between">
           <SummaryStats feedback={filtered} />
@@ -93,4 +116,3 @@ const Admin = () => {
 };
 
 export default Admin;
-

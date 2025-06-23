@@ -1,9 +1,8 @@
-
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import StarRating from "../components/StarRating";
 import SuggestedSentences from "../components/SuggestedSentences";
-import { saveFeedback, generateDiscount, generateCode } from "../lib/feedbackUtils";
+import { generateDiscount, generateCode } from "../lib/feedbackUtils";
 import { Button } from "@/components/ui/button";
 import { BarChart3 } from "lucide-react";
 
@@ -36,19 +35,31 @@ const Index = () => {
     setSubmitting(true);
     const discount = generateDiscount();
     const code = generateCode();
-    saveFeedback({
-      id: code + Date.now(),
-      name: form.name,
-      email: form.email,
-      rating: form.rating,
-      message: form.message,
-      discount,
-      discountCode: code,
-      date: new Date().toISOString(),
-    });
-    setTimeout(() => {
-      navigate("/thank-you", { state: { discount, code } });
-    }, 900);
+
+    try {
+      await fetch('http://localhost:5000/api/feedback', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: form.name,
+          email: form.email,
+          rating: form.rating,
+          message: form.message,
+          discount,
+          discountCode: code,
+          date: new Date().toISOString(),
+        })
+      });
+
+      setTimeout(() => {
+        navigate("/thank-you", { state: { discount, code } });
+      }, 900);
+    } catch (err) {
+      console.error(err);
+      setError("Failed to submit feedback. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   function handleSuggested(txt: string) {
@@ -60,7 +71,7 @@ const Index = () => {
 
   return (
     <div className={`${bgLight} min-h-screen w-full flex items-center justify-center relative`}>
-      <Button
+      {/* <Button
         variant="secondary"
         onClick={() => navigate("/admin")}
         className="absolute top-4 right-4 flex items-center gap-2"
@@ -68,8 +79,8 @@ const Index = () => {
       >
         <BarChart3 size={18} />
         Dashboard
-      </Button>
-      
+      </Button> */}
+
       <form
         onSubmit={handleSubmit}
         className="w-full max-w-md bg-white rounded-2xl shadow-lg p-8 animate-fade-in border border-blue-100"
