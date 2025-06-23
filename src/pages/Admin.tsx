@@ -5,6 +5,7 @@ import SummaryStats from "../components/SummaryStats";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+const API_URL = import.meta.env.VITE_API_URL;
 
 const Admin = () => {
   const [feedback, setFeedback] = useState<FeedbackEntry[]>([]);
@@ -16,7 +17,7 @@ const Admin = () => {
   useEffect(() => {
     async function fetchFeedback() {
       try {
-        const res = await fetch('http://localhost:5000/api/feedback');
+        const res = await fetch(`${API_URL}/api/feedback`);
         const data = await res.json();
 
         // map _id → id for FeedbackEntry type

@@ -5,6 +5,7 @@ import SuggestedSentences from "../components/SuggestedSentences";
 import { generateDiscount, generateCode } from "../lib/feedbackUtils";
 import { Button } from "@/components/ui/button";
 import { BarChart3 } from "lucide-react";
+const API_URL = import.meta.env.VITE_API_URL;
 
 const initialState = {
   name: "",
@@ -37,7 +38,7 @@ const Index = () => {
     const code = generateCode();
 
     try {
-      await fetch('http://localhost:5000/api/feedback', {
+      await fetch(`${API_URL}/api/feedback`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
