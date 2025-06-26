@@ -10,6 +10,8 @@ import Admin from "./pages/Admin";
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import AdminDashboardPage from './pages/AdminDashboardPage'
 import CustomerFeedbackPage from './pages/CustomerFeedbackPage';
+import LoginPage from "./pages/LoginPage";
+import SignupPage from "./pages/SignupPage";
 
 const queryClient = new QueryClient();
 
@@ -21,6 +23,8 @@ const App = () => (
        <Router>
       <Routes>
         <Route path="/" element={<AdminDashboardPage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/signup" element={<SignupPage />} />
         <Route path="/feedback" element={<CustomerFeedbackPage />} />
         <Route path="/thank-you" element={<ThankYou />} />
         <Route path="*" element={<NotFound />} />

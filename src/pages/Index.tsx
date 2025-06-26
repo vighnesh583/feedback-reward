@@ -40,7 +40,9 @@ const Index = () => {
     try {
       await fetch(`${API_URL}/api/feedback`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+         },
         body: JSON.stringify({
           name: form.name,
           email: form.email,

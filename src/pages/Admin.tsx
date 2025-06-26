@@ -6,6 +6,10 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 const API_URL = import.meta.env.VITE_API_URL;
+const token = localStorage.getItem("token");
+
+
+
 
 const Admin = () => {
   const [feedback, setFeedback] = useState<FeedbackEntry[]>([]);
@@ -14,10 +18,18 @@ const Admin = () => {
   const [asc, setAsc] = useState(false);
   const navigate = useNavigate();
 
+  function handleLogout() {
+    localStorage.removeItem("token");
+    navigate("/login");
+  }
   useEffect(() => {
     async function fetchFeedback() {
       try {
-        const res = await fetch(`${API_URL}/api/feedback`);
+        const res = await fetch(`${API_URL}/api/feedback`, {
+          headers: {
+           'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+       });
         const data = await res.json();
 
         // map _id → id for FeedbackEntry type
@@ -61,18 +73,35 @@ const Admin = () => {
   return (
     <div className="bg-gradient-to-tr from-blue-50 via-amber-50 to-purple-50 min-h-screen py-10 px-3">
       <div className="max-w-5xl mx-auto">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-extrabold text-blue-800 tracking-tight">Feedback Dashboard</h1>
-          {/* <Button
-            variant="secondary"
-            onClick={() => navigate("/")}
-            className="flex items-center gap-2"
-            title="Switch to Client View"
-          >
-            <ArrowLeft size={18} />
-            Client View
-          </Button> */}
-        </div>
+      <div className="flex justify-between items-center mb-8">
+  <h1 className="text-3xl font-extrabold text-blue-800 tracking-tight">Feedback Dashboard</h1>
+  <div className="flex gap-2">
+    {!token ? (
+      <>
+        <button
+          onClick={() => navigate("/login")}
+          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
+        >
+          Login
+        </button>
+        <button
+          onClick={() => navigate("/signup")}
+          className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition"
+        >
+          Sign Up
+        </button>
+      </>
+    ) : (
+      <button
+        onClick={handleLogout}
+        className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition"
+      >
+        Logout
+      </button>
+    )}
+  </div>
+</div>
+
         <div className="mb-8 flex flex-col md:flex-row gap-4 items-center md:justify-between">
           <SummaryStats feedback={filtered} />
         </div>
