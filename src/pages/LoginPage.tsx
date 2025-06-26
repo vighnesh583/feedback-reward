@@ -2,11 +2,16 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 const API_URL = import.meta.env.VITE_API_URL;
+import { useContext } from "react";
+import { AuthContext } from "../context/AuthContext";
+
+
 
 const LoginPage = () => {
   const [form, setForm] = useState({ email: "", password: "" });
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
+  const { login } = useContext(AuthContext);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -15,6 +20,7 @@ const LoginPage = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+    
 
     try {
       const res = await fetch(`${API_URL}/api/auth/login`, {
@@ -26,7 +32,7 @@ const LoginPage = () => {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Login failed");
 
-      localStorage.setItem("token", data.token);
+      login(data.token, data.user); // ✅ this now works
       navigate("/"); // or /admin
     } catch (err: any) {
       setError(err.message);

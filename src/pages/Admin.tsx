@@ -6,7 +6,9 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 const API_URL = import.meta.env.VITE_API_URL;
-const token = localStorage.getItem("token");
+import { useContext } from "react";
+import { AuthContext } from "../context/AuthContext";
+
 
 
 
@@ -17,9 +19,11 @@ const Admin = () => {
   const [sort, setSort] = useState<"date" | "rating">("date");
   const [asc, setAsc] = useState(false);
   const navigate = useNavigate();
+  const { user, logout } = useContext(AuthContext);
+
 
   function handleLogout() {
-    localStorage.removeItem("token");
+    logout();  
     navigate("/login");
   }
   useEffect(() => {
@@ -30,7 +34,13 @@ const Admin = () => {
            'Authorization': `Bearer ${localStorage.getItem('token')}`
           }
        });
+       if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || "Unauthorized");
+      }
         const data = await res.json();
+
+        if (!Array.isArray(data)) throw new Error("Expected array, got something else");
 
         // map _id → id for FeedbackEntry type
         const mapped = data.map((item: any) => ({
@@ -76,7 +86,10 @@ const Admin = () => {
       <div className="flex justify-between items-center mb-8">
   <h1 className="text-3xl font-extrabold text-blue-800 tracking-tight">Feedback Dashboard</h1>
   <div className="flex gap-2">
-    {!token ? (
+  {user && (
+    <span className="text-gray-700 font-semibold">Hi, {user.name}</span>
+  )}
+    {!user ? (
       <>
         <button
           onClick={() => navigate("/login")}
