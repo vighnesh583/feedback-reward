@@ -1,10 +1,8 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import StarRating from "../components/StarRating";
 import SuggestedSentences from "../components/SuggestedSentences";
 import { generateDiscount, generateCode } from "../lib/feedbackUtils";
-import { Button } from "@/components/ui/button";
-import { BarChart3 } from "lucide-react";
 const API_URL = import.meta.env.VITE_API_URL;
 
 const initialState = {
@@ -17,6 +15,7 @@ const initialState = {
 const bgLight = "bg-gradient-to-tr from-blue-100 via-teal-100 to-amber-50";
 
 const Index = () => {
+  const { userId } = useParams();
   const [form, setForm] = useState(initialState);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -29,20 +28,24 @@ const Index = () => {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
-    if (!form.name || !form.email || form.rating === 0) {
-      setError("Please enter your name, email, and give a rating!");
+
+    // ✅ Added message check
+    if (!form.name || !form.email || form.rating === 0 || !form.message) {
+      setError("Please fill in all fields including feedback message.");
       return;
     }
+
     setSubmitting(true);
     const discount = generateDiscount();
     const code = generateCode();
 
     try {
-      await fetch(`${API_URL}/api/feedback`, {
+      const response = await fetch(`${API_URL}/api/feedback/${userId}`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-         },
+        headers: {
+          'Content-Type': 'application/json',
+          // ✅ Removed token — customers won't be logged in
+        },
         body: JSON.stringify({
           name: form.name,
           email: form.email,
@@ -51,15 +54,20 @@ const Index = () => {
           discount,
           discountCode: code,
           date: new Date().toISOString(),
-        })
+        }),
       });
+
+      if (!response.ok) {
+        const errData = await response.json();
+        throw new Error(errData.error || "Submission failed.");
+      }
 
       setTimeout(() => {
         navigate("/thank-you", { state: { discount, code } });
       }, 900);
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      setError("Failed to submit feedback. Please try again.");
+      setError(err.message || "Submission failed.");
     } finally {
       setSubmitting(false);
     }
@@ -74,16 +82,6 @@ const Index = () => {
 
   return (
     <div className={`${bgLight} min-h-screen w-full flex items-center justify-center relative`}>
-      {/* <Button
-        variant="secondary"
-        onClick={() => navigate("/admin")}
-        className="absolute top-4 right-4 flex items-center gap-2"
-        title="Switch to Admin Dashboard"
-      >
-        <BarChart3 size={18} />
-        Dashboard
-      </Button> */}
-
       <form
         onSubmit={handleSubmit}
         className="w-full max-w-md bg-white rounded-2xl shadow-lg p-8 animate-fade-in border border-blue-100"

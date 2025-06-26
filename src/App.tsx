@@ -29,7 +29,7 @@ const App = () => (
         {/* <Route path="/" element={<AdminDashboardPage />} /> */}
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
-        <Route path="/feedback" element={<CustomerFeedbackPage />} />
+        <Route path="/feedback/:userId" element={<CustomerFeedbackPage />} />
         <Route path="/thank-you" element={<ThankYou />} />
         <Route path="*" element={<NotFound />} />
       </Routes>

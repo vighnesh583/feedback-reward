@@ -20,6 +20,7 @@ const Admin = () => {
   const [asc, setAsc] = useState(false);
   const navigate = useNavigate();
   const { user, logout } = useContext(AuthContext);
+  const userId = user?.id;
 
 
   function handleLogout() {
@@ -29,7 +30,7 @@ const Admin = () => {
   useEffect(() => {
     async function fetchFeedback() {
       try {
-        const res = await fetch(`${API_URL}/api/feedback`, {
+        const res = await fetch(`${API_URL}/api/feedback/${userId}`, {
           headers: {
            'Authorization': `Bearer ${localStorage.getItem('token')}`
           }
@@ -87,7 +88,15 @@ const Admin = () => {
   <h1 className="text-3xl font-extrabold text-blue-800 tracking-tight">Feedback Dashboard</h1>
   <div className="flex gap-2">
   {user && (
+    <>
     <span className="text-gray-700 font-semibold">Hi, {user.name}</span>
+    <p className="text-sm text-gray-600">
+          Share this link:&nbsp;
+          <code className="bg-gray-100 px-2 py-1 rounded text-blue-700">
+            {`https://feedback-reward.vercel.app/feedback/${user.id}`}
+          </code>
+        </p>
+    </>
   )}
     {!user ? (
       <>
